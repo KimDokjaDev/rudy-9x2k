@@ -49,19 +49,18 @@ input:focus-visible,button:focus-visible{outline:3px solid #ff9db1;outline-offse
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition:none!important}}
 </style></head><body>
 <div id="lg">
-<form class="box" id="lf" autocomplete="off">
+<form class="box" id="lf" method="post" action="#">
 <div class="ic">🔐</div>
 <h1>Dla Alinki</h1>
 <p class="sub">Zaloguj się, żeby wejść</p>
 <label for="l1">Login</label>
-<input id="l1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+<input id="l1" name="username" type="text" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false">
 <p class="ok" id="lh" aria-live="polite"></p>
 <label for="l2">Hasło</label>
-<input id="l2" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+<input id="l2" name="password" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
 <div class="wd" id="wd" aria-live="polite"></div>
 <button class="go" type="submit">Wejdź 💞</button>
 <p id="er" aria-live="polite"></p>
-<div class="chips" id="ch"></div>
 <p class="rome">🏛️ „Veni, vidi, vici.”<br>Gajusz Juliusz też pisał tak, żeby tylko właściwa osoba mogła to przeczytać.</p>
 </form>
 </div>
@@ -77,12 +76,11 @@ function hp(x){return cy(norm(x),11)}
 var ED=[{id:"6m",name:"💞 Pół roku",l:4679350149046827,a:"NnBsaHZsaGZi",start:"gift"}];
 // ======================================================
 var $=function(i){return document.getElementById(i)},fr={},fails=0,cur=null;
-function ld(){try{return JSON.parse(localStorage.getItem("ak_ed"))||[]}catch(e){return[]}}
-function sv(a){try{localStorage.setItem("ak_ed",JSON.stringify(a))}catch(e){}}
+try{localStorage.removeItem("ak_ed")}catch(e){}
 function prev(){if(fr.gift&&fr.gift.contentWindow)fr.gift.contentWindow.postMessage({preview:location.hash==="#odblokuj"},"*")}
 function make(n){var f=document.createElement("iframe");f.className="f";f.title=n;f.srcdoc=P[n];if(n==="gift")f.onload=prev;document.body.appendChild(f);fr[n]=f;return f}
 function show(n){
-  if(n==="login"){$("lg").hidden=false;$("kb").hidden=true;Object.keys(fr).forEach(function(k){fr[k].classList.remove("on")});chips();$("l1").value="";$("l2").value="";$("lh").textContent="";$("er").textContent="";$("wd").innerHTML="";return}
+  if(n==="login"){$("lg").hidden=false;$("kb").hidden=true;Object.keys(fr).forEach(function(k){fr[k].classList.remove("on")});$("l1").value="";$("l2").value="";$("lh").textContent="";$("er").textContent="";$("wd").innerHTML="";return}
   if(!P[n])return;
   if(!fr[n])make(n);
   $("lg").hidden=true;$("kb").hidden=false;
@@ -90,7 +88,6 @@ function show(n){
   if(n==="gift")prev();
 }
 function enter(ed){fails=0;$("er").textContent="";show(ed.start)}
-function chips(){var c=$("ch");c.innerHTML="";var u=ld();ED.forEach(function(ed){if(u.indexOf(ed.id)<0)return;var b=document.createElement("button");b.type="button";b.textContent="Wróć do: "+ed.name;b.onclick=function(){enter(ed)};c.appendChild(b)})}
 function findEd(l){var v=hl(l);return ED.filter(function(x){return x.l===v})[0]}
 function wdraw(){var w=$("wd");w.innerHTML="";var ed=findEd($("l1").value);if(!ed)return;
   var ans=atob(ed.a).split(""),g=norm($("l2").value).split(""),res=[],cnt={};
@@ -99,7 +96,7 @@ function wdraw(){var w=$("wd");w.innerHTML="";var ed=findEd($("l1").value);if(!e
   g.forEach(function(c,i){if(res[i])return;if(cnt[c]>0){res[i]="y";cnt[c]--}else res[i]="r"});
   for(var i=0;i<Math.max(ans.length,g.length);i++){var t=document.createElement("div");t.className="t "+(i<g.length?res[i]:"e");t.textContent=i<g.length?g[i].toUpperCase():"";w.appendChild(t)}}
 $("l1").oninput=function(){$("lh").textContent=findEd(this.value)?"✅ Login poprawny":"";wdraw()};
-$("l2").oninput=wdraw;
+$("l2").oninput=wdraw;$("l1").onchange=function(){$("l1").oninput()};$("l2").onchange=wdraw;
 function bad(t){fails++;var f=$("lf");f.classList.remove("sh");void f.offsetWidth;f.classList.add("sh");
   if(fails>=3)t+="\nPodpowiedź: to szyfr Cezara. Przesunięcie jest równe liczbie słów w jego słynnym cytacie.";
   if(fails>=6)t+="\nPrzesuwają się tylko litery, cyfry zostają.";
@@ -109,7 +106,7 @@ $("lf").onsubmit=function(e){e.preventDefault();
   if(!ed){$("lh").textContent="";bad("❌ Nie ma takiego loginu");return}
   $("lh").textContent="✅ Login poprawny";
   if(norm($("l2").value)!==atob(ed.a)){bad("❌ Złe hasło do tego loginu");return}
-  var u=ld();if(u.indexOf(ed.id)<0){u.push(ed.id);sv(u)}enter(ed)};
+  enter(ed)};
 $("kb").onclick=function(){show("login")};
 window.addEventListener("message",function(e){var d=e.data;if(d&&d.go&&Object.keys(fr).some(function(k){return fr[k].contentWindow===e.source}))show(d.go)});
 window.addEventListener("hashchange",prev);
