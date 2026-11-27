@@ -123,6 +123,7 @@ window.AK={
   get:function(k,d){return SV.hasOwnProperty(k)?SV[k]:d},
   set:function(k,v){SV[k]=v;saveSV()},
   badges:function(){return SV.badges||{}},
+  resetBadges:function(){if(!EDID)return;SV.badges={};SV.days=[];if(SV.rudy)SV.rudy.p=0;saveSV();if(fr.home)fr.home.srcdoc=P.home;toast("🔄 Odznaki zresetowane")},
   defs:BADGES,
   badge:function(id){var b=SV.badges||(SV.badges={});if(b[id])return;var d=BADGES.filter(function(x){return x.id===id})[0];if(!d)return;b[id]=Date.now();saveSV();toast("🏅 Nowa odznaka: "+d.e+" "+d.n)},
   exp:function(){try{return btoa(unescape(encodeURIComponent(JSON.stringify(SV))))}catch(e){return""}},
@@ -141,7 +142,7 @@ var ED=[{id:"6m",name:"💞 Pół roku",l:4679350149046827,a:"NnBsaHZsaGZi",star
 var $=function(i){return document.getElementById(i)},fr={},fails=0,cur=null;
 try{localStorage.removeItem("ak_ed")}catch(e){}
 function prev(){if(fr.gift&&fr.gift.contentWindow)fr.gift.contentWindow.postMessage({preview:location.hash==="#odblokuj"},"*")}
-function make(n){var f=document.createElement("iframe");f.className="f";f.title=n;f.setAttribute("allow","camera");f.srcdoc=P[n];if(n==="gift")f.onload=prev;document.body.appendChild(f);fr[n]=f;return f}
+function make(n){var f=document.createElement("iframe");f.className="f";f.title=n;f.setAttribute("allow","camera");f.srcdoc=P[n];f.addEventListener("load",function(){if(n==="gift")prev();try{f.contentWindow.document.addEventListener("keydown",kh)}catch(e){}});document.body.appendChild(f);fr[n]=f;return f}
 function show(n){
   if(n==="login"){$("lg").hidden=false;$("kb").hidden=true;Object.keys(fr).forEach(function(k){fr[k].classList.remove("on")});$("l1").value="";$("l2").value="";$("lh").textContent="";$("er").textContent="";$("wd").innerHTML="";return}
   if(!P[n])return;
@@ -172,6 +173,8 @@ $("lf").onsubmit=function(e){e.preventDefault();
   enter(ed)};
 $("kb").onclick=function(){show("login")};
 window.addEventListener("message",function(e){var d=e.data;if(d&&d.go&&Object.keys(fr).some(function(k){return fr[k].contentWindow===e.source}))show(d.go)});
+function kh(e){if(e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&e.key&&e.key.toLowerCase()==="r"){var t=e.target&&e.target.tagName;if(t==="INPUT"||t==="TEXTAREA")return;e.preventDefault();AK.resetBadges()}}
+document.addEventListener("keydown",kh);
 window.addEventListener("hashchange",prev);
 show("login");
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
